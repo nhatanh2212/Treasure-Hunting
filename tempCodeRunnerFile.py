@@ -1,1 +1,1 @@
-        x = input()
+                    pygame.quit()

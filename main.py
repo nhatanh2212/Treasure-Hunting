@@ -9,7 +9,7 @@ class Main:
         # print('Enter the map size(16, 32,64: ')
         # x = input()
         self._map = Map(16)
-        self.screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+        self.screen = pygame.display.set_mode( (WIDTH, HEIGHT))
         pygame.display.set_caption('Treasure Island')
  
     def main_loop(self):
@@ -18,7 +18,7 @@ class Main:
 
         while True:
             map.show_map(screen)
-            # map.show_piece(screen)
+            map.show_piece(screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()

@@ -1,12 +1,14 @@
 import pygame
 from const import *
 from board import Board
+from dragger import Dragger
 import os
 
 class Map:
     def __init__(self , size):
         self.size = size
         self.board = Board(size)
+        self.dragger = Dragger()
 
     def show_map(self, surface):
         LIST = REGION16 
@@ -35,13 +37,14 @@ class Map:
         PSIZE = WIDTH / self.size
         for row in range(self.size):
             for col in range(self.size):
-                pygame.draw.rect(surface, (135,206,235), (row * PSIZE, col * PSIZE, PSIZE, PSIZE),0,1)
                 if self.board._square[row][col].has_piece():
                    piece = self.board._square[row][col].piece
-                if piece.name == "Mountain" and row == 0:
-                        surface.blit(pygame.image.load(os.path.join('assets/images/Mountain.png')), (row, col))
-                elif piece.name == "Prison" and row == 9:
-                        surface.blit(pygame.image.load(os.path.join('assets/images/prison.png')), (row, col))
-               
+                if piece is not self.dragger.piece:
+                    piece.set_texture()
+                    img = pygame.image.load(piece.texture)
+                    img_center = col * PSIZE + PSIZE // 2, row * PSIZE + PSIZE // 2
+                    piece.texture_rect = img.get_rect(center=img_center)
+                    surface.blit(img, piece.texture_rect)
+
 
         
