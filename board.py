@@ -1,6 +1,6 @@
 from const import *
 from square import Square
-from piece import Piece, Mountain, Treasure, Prison, Player
+from piece import *
 
 class Board:
 
@@ -22,11 +22,13 @@ class Board:
         for row in range(self._size):
             for col in range(self._size):
                 if PIECES[row][col] == 'M': 
-                    self._square[row][col].piece = Mountain()
+                    self._square[row][col].piece = Piece('mountain',PIECES[row][col])
                 elif PIECES[row][col] == 'T':
-                    self._square[row][col].piece = Treasure()
+                    self._square[row][col].piece = Piece('Treasure',PIECES[row][col])
                 elif PIECES[row][col] == 'P':
-                    self._square[row][col].piece = Prison()
+                    self._square[row][col].piece = Piece('Prison',PIECES[row][col])
+                elif PIECES[row][col] == '0':
+                    self._square[row][col].piece = Piece('Water',PIECES[row][col])
                 elif PIECES[row][col] == 'I':
                     self._square[row][col].piece = Player()
                 else:

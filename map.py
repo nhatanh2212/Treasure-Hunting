@@ -39,12 +39,12 @@ class Map:
             for col in range(self.size):
                 if self.board._square[row][col].has_piece():
                    piece = self.board._square[row][col].piece
-                if piece is not self.dragger.piece:
-                    piece.set_texture()
-                    img = pygame.image.load(piece.texture)
-                    img_center = col * PSIZE + PSIZE // 2, row * PSIZE + PSIZE // 2
-                    piece.texture_rect = img.get_rect(center=img_center)
-                    surface.blit(img, piece.texture_rect)
+                
+                   piece.set_texture()
+                   img = pygame.image.load(piece.texture)
+                   img_center = col * PSIZE + PSIZE // 2, row * PSIZE + PSIZE // 2
+                   piece.texture_rect = img.get_rect(center=img_center)
+                   surface.blit(img, piece.texture_rect)
 
 
         
