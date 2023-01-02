@@ -1,50 +1,31 @@
-import pygame
-from const import *
+import const
 from board import Board
-from dragger import Dragger
 import os
 
 class Map:
-    def __init__(self , size):
-        self.size = size
-        self.board = Board(size)
-        self.dragger = Dragger()
-
-    def show_map(self, surface):
-        LIST = REGION16 
-        PSIZE = WIDTH / self.size
-        for row in range(self.size):
-            for col in range(self.size):
-                if LIST[row][col] == 0:
-                    color = BLUE
-                elif LIST[row][col] == 1:
-                    color = GREEN
-                elif LIST[row][col] == 2:
-                    color = YELLOW
-                elif LIST[row][col] == 3:
-                    color = ORANGE
-                elif LIST[row][col] == 4:
-                    color = PURPLE
-                elif LIST[row][col] == 5:
-                    color = ORANGE
-                elif LIST[row][col] == 6:
-                    color = PINK
+    def show_map(self, screen, gameMap):
+        for row in range(len(gameMap)):
+            for col in range(len(gameMap).size):
+                if gameMap[row][col] == 0:
+                    color = const.BLUE
+                elif gameMap[row][col] == 1:
+                    color = const.GREEN
+                elif gameMap[row][col] == 2:
+                    color = const.YELLOW
+                elif gameMap[row][col] == 3:
+                    color = const.ORANGE
+                elif gameMap[row][col] == 4:
+                    color = const.PURPLE
+                elif gameMap[row][col] == 5:
+                    color = const.ORANGE
+                elif gameMap[row][col] == 6:
+                    color = const.PINK
                 else:
-                    color = TUR
-                pygame.draw.rect(surface, color, (row * PSIZE, col * PSIZE, PSIZE, PSIZE),0,1)
+                    color = const.TUR
+                screen.draw.rect(gameMap, color, (col * const.SIZE, row * const.SIZE, const.SIZE, const.SIZE), 0, 1)
 
-    def show_piece(self, surface):
-        PSIZE = WIDTH / self.size
-        for row in range(self.size):
-            for col in range(self.size):
-                if self.board._square[row][col].has_piece():
-                   piece = self.board._square[row][col].piece
-                
-                   piece.set_texture()
-                   img = pygame.image.load(piece.texture)
-                   img_center = col * PSIZE + PSIZE // 2, row * PSIZE + PSIZE // 2
-                   piece.texture_rect = img.get_rect(center=img_center)
-                   surface.blit(img, piece.texture_rect)
-
+    def show_piece(self, screen, filename, coord):
+        img = pygame.image.load(os.path.join(f'images/{filename}'))
+        screen.blit(img, (coord.x, coord.y))
 
         

@@ -22,7 +22,7 @@ class Board:
         for row in range(self._size):
             for col in range(self._size):
                 if PIECES[row][col] == 'M': 
-                    self._square[row][col].piece = Piece('mountain',PIECES[row][col])
+                    self._square[row][col].piece = Piece('Mountain',PIECES[row][col])
                 elif PIECES[row][col] == 'T':
                     self._square[row][col].piece = Piece('Treasure',PIECES[row][col])
                 elif PIECES[row][col] == 'P':
