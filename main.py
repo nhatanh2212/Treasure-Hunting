@@ -62,7 +62,7 @@ class HintFactory:
         log = "HINT 3 {} ".format(num)
         regions = []
         for _ in range(num):
-            regions.append(random.randint(self.R))
+            regions.append(random.randint(0, self.R))
             log += "{} ".format(regions[-1])
         for row in range(self.H):
             for col in range(self.W):
@@ -323,6 +323,7 @@ class Game:
                 print(log, file=file) 
     
     def endCondition(self):
+
         if (self.pirateCoord == self.T):
             self.log.append("ENDG LOSE")
             return True
@@ -348,8 +349,8 @@ class Game:
     def directionToGo(self):
         total = [0, 0, 0, 0] #Bottom top right left
         direction = [Coordination(1, 0), Coordination(-1, 0), Coordination(0, 1), Coordination(0, -1)]
-        for row in range(0, self.playerCoord.H):
-            for col in range(0, self.playerCoord.W):
+        for row in range(0, self.H):
+            for col in range(0, self.W):
                 if (self.bitMap[row][col]):
                     total[0] += int(row > self.playerCoord.x)
                     total[1] += int(row < self.pirateCoord.x)
@@ -440,7 +441,7 @@ class Game:
         return rawStep
 
     def simulate(self):
-        while (self.endCondition()):
+        while (not self.endCondition()):
             self.log.append("TURN {}".format(self.turn + 1)) # TURN SEQUENCE NUMBER
             if (self.turn == self.r):
                 self.log.append("RVEL {}".format(self.pirateCoord)) # PIRATE REVEALS COORD
@@ -471,7 +472,7 @@ def main(input_path, output_path):
     game = Game()
     game.initialize(input_path)
     game.simulate()
-   # game.output(output_path)
+    game.output(output_path)
 
 if __name__ == '__main__':
     if (len(sys.argv) != 3):

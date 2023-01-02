@@ -1,1 +1,6 @@
-0
+4
+WIN
+TURN 1
+H 1 4 
+ALSN
+ENDG WIN
