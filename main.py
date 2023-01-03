@@ -3,6 +3,7 @@ import os
 import random
 from coord import *
 import const
+from visualization import *
 
 NORTH = Coordination(-1, 0)
 SOUTH = Coordination(1, 0)
@@ -246,7 +247,7 @@ class HintFactory:
         rand = random.randint(0, 100)
         normalIndex = [1, 3, 4, 5, 6, 9, 10, 11, 12]
         rareIndex = [2, 8]        
-        if (rand > 85):
+        if (rand > 75):
             type = rareIndex[random.randint(0, len(rareIndex)-1)]
         else:
             type = normalIndex[random.randint(0, len(normalIndex)-1)]
@@ -553,6 +554,9 @@ def main(input_path, output_path):
     game.initialize(input_path)
     game.simulate()
     game.output(output_path)
+    visualizer = Visualizer()
+    visualizer.initialize(input_path)
+    visualizer.simulate(output_path)
 
 if __name__ == '__main__':
     if (len(sys.argv) != 3):
