@@ -348,7 +348,8 @@ class Visualizer:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             if (command == "ENDG"):
-                                continue
+                                pygame.quit()
+                                sys.exit()
                             self.turn += 1
                             isNewturn = True
 
