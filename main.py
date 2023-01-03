@@ -362,15 +362,15 @@ class Game:
         while (not (visited[cur.x][cur.y] is None)) and (not (visited[cur.x][cur.y] == self.pirateCoord)):
             self.piratePath.append(visited[cur.x][cur.y])
             cur = visited[cur.x][cur.y]
-            
+
     def endCondition(self):
+        if (len(self.log) and self.log[-1].split(" ")[0] == "ENDG"):
+            return True
         if (self.pirateCoord == self.T):
             self.log.append("ENDG LOSE")
             return True
         if (self.playerCoord == self.T):
             self.log.append("ENDG WIN")
-            return True
-        if (len(self.log) and self.log[-1].split(" ")[0] == "ENDG"):
             return True
         return False
     
