@@ -4,6 +4,11 @@ import random
 from coord import *
 import const
 
+NORTH = Coordination(-1, 0)
+SOUTH = Coordination(1, 0)
+WEST = Coordination(0, -1)
+EAST = Coordination(0, 1)
+
 class HintFactory:
     def __init__(self, W, H, R, gameMap):
         self.W = W
@@ -29,7 +34,7 @@ class HintFactory:
             "log": log
         }
     
-    def tilesWithoutTreasure(self, firstHint):
+    def tilesWithoutTreasure(self):
         num = random.randint(1, 12)
         bitmap = [[1]*self.W for _ in range(self.H)]
         log = "HINT 1 {} ".format(num)     
@@ -289,6 +294,7 @@ class Game:
             treasureCoord = list(map(int, file.readline().strip().split(" ")))
             self.T = Coordination(treasureCoord[0], treasureCoord[1])
             self.gameMap = []
+            self.obstacle = [[False]*self.W for _ in range(self.H)]
             self.mountainCoords = []
             self.prisonCoords = []
             possiblePlayerSpawnCoords = []
@@ -301,6 +307,7 @@ class Game:
                     if rawRow[col][-1].isalpha():
                         self.gameMap[-1].append(int(rawRow[col][:-1]))
                         if (rawRow[col][-1] == 'M'):
+                            self.obstacle[row][col] = True
                             self.mountainCoords.append(Coordination(row, col))
                         elif (rawRow[col][-1] == 'P'):
                             self.prisonCoords.append(Coordination(row, col))
@@ -308,6 +315,8 @@ class Game:
                         self.gameMap[-1].append(int(rawRow[col]))
                         if (int(rawRow[col]) != 0):
                             possiblePlayerSpawnCoords.append(Coordination(row, col))
+                        else:
+                            self.obstacle[row][col] = True
             for row in range(self.H):
                 for col in range(self.W):
                     if (self.gameMap[row][col] == 0):
@@ -315,6 +324,7 @@ class Game:
             self.playerCoord = possiblePlayerSpawnCoords[random.randint(0, len(possiblePlayerSpawnCoords) - 1)]
             self.pirateCoord = self.prisonCoords[random.randint(0, len(self.prisonCoords) - 1)]
             self.hintFactory = HintFactory(self.W, self.H, self.R, self.gameMap)
+            self.calculatePiratePath()
     
     def output(self, output_path): 
         with open(output_path, "w") as file:
@@ -322,14 +332,45 @@ class Game:
             print(self.log[-1].split(" ")[-1], file=file)
             for log in self.log:
                 print(log, file=file) 
-    
-    def endCondition(self):
 
+    def calculatePiratePath(self):
+        deltaX = [0, 0, 1, -1, 0, 0, 2, -2]
+        deltaY = [1, -1, 0, 0, 2, -2, 0, 0]
+        self.piratePath = []
+        queue = []
+        visited = [[None]*self.W for _ in range(self.H)]
+        visited[self.pirateCoord.x][self.pirateCoord.y] = None
+        queue.append(Coordination(self.pirateCoord. x, self.pirateCoord.y))
+        while (len(queue)):
+            at = queue.pop(0)
+            for index in range(len(deltaX)):
+                to = Coordination(at.x + deltaX[index], at.y + deltaY[index])
+                if (to.x < 0 or to.x >= self.H or to.y < 0  or to.y >= self.W):
+                    continue
+                if (self.obstacle[to.x][to.y] == True):
+                    continue
+                if (not visited[to.x][to.y] is None):
+                    continue
+                queue.append(to)
+                visited[to.x][to.y] = Coordination(at.x, at.y)
+
+        if (visited[self.T.x][self.T.y] is None):
+            return
+
+        self.piratePath.append(self.T)
+        cur = self.T
+        while (not (visited[cur.x][cur.y] is None)) and (not (visited[cur.x][cur.y] == self.pirateCoord)):
+            self.piratePath.append(visited[cur.x][cur.y])
+            cur = visited[cur.x][cur.y]
+            
+    def endCondition(self):
         if (self.pirateCoord == self.T):
             self.log.append("ENDG LOSE")
             return True
         if (self.playerCoord == self.T):
             self.log.append("ENDG WIN")
+            return True
+        if (len(self.log) and self.log[-1].split(" ")[0] == "ENDG"):
             return True
         return False
     
@@ -347,26 +388,26 @@ class Game:
             return self.H - 1
         return y
 
-    def directionToGo(self):
-        total = [0, 0, 0, 0] #Bottom top right left
-        direction = [Coordination(1, 0), Coordination(-1, 0), Coordination(0, 1), Coordination(0, -1)]
+    def directionsDescSortedByPotential(self):
+        total = [(0, SOUTH), (0, NORTH), (0, EAST), (0, WEST)]
+        #Bottom top right left
         for row in range(0, self.H):
             for col in range(0, self.W):
                 if (self.bitMap[row][col]):
-                    total[0] += int(row > self.playerCoord.x)
-                    total[1] += int(row < self.pirateCoord.x)
-                    total[2] += int(col > self.playerCoord.y)
-                    total[3] += int(col < self.playerCoord.y)
-        maxx = max(total[0], total[1], total[2], total[3])
-        for index in range(4):
-            if (maxx == total[index]):
-                return direction[index]
+                    total[0] = (total[0][0] + int(row > self.playerCoord.x), total[0][1])
+                    total[1] = (total[1][0] + int(row < self.pirateCoord.x), total[1][1])
+                    total[2] = (total[2][0] + int(col > self.playerCoord.y), total[2][1])
+                    total[3] = (total[3][0] + int(col < self.playerCoord.y), total[3][1])
+        total = sorted(total, key=lambda x:x[0])
+        total.reverse()
+        return [total[0][1], total[1][1], total[2][1], total[3][1]]
 
-    def smallScan(self):
-        optimalDirection = self.directionToGo()
-        self.playerCoord.x = self.boundX(self.playerCoord.x + optimalDirection.x * 2)
-        self.playerCoord.y = self.boundY(self.playerCoord.y + optimalDirection.y * 2)
-        self.log.append("ASSN {}".format(self.pirateCoord))
+    def stepAndSmallScan(self, step, direction):
+        self.log.append("ASSN {} {}".format(step, direction))
+
+        self.playerCoord.x += step * direction.x
+        self.playerCoord.y += step * direction.y
+
         deltaX = [0, 0, 0, 1, -1, 1, -1, 1, -1]
         deltaY = [0, 1, -1, 0, 0, 1, -1, -1, 1]
         for index in range(len(deltaX)):
@@ -374,40 +415,85 @@ class Game:
             y = self.boundX(self.playerCoord.y + deltaY[index])
             if (Coordination(x, y) == self.T):
                 self.log.append("ENDG WIN")
-                return True
+                return
             else:
                 self.bitMap[x][y] = 0
-        return False
     
-    def noScan(self):
-        optimalDirection = self.directionToGo()
-        savedPlayerCoord = Coordination(self.playerCoord.x, self.playerCoord.y)
-        self.playerCoord.x = self.boundX(self.playerCoord.x + optimalDirection.x * 4)
-        self.playerCoord.y = self.boundY(self.playerCoord.y + optimalDirection.y * 4)
-        self.log.append("ANSN {}".format(self.playerCoord))
-        for index in range(1, 5):
-            newCoord = Coordination(self.boundX(savedPlayerCoord.x +  optimalDirection.x * index), self.boundY(savedPlayerCoord.y + optimalDirection.y * index))
-            if (newCoord == self.T):
+    def stepAndNoScan(self, step, direction):
+        self.log.append("ANSN {} {}".format(step, direction))
+        for _ in range(step):
+            self.playerCoord.x += direction.x
+            self.playerCoord.y += direction.y
+            if (self.playerCoord == self.T):
                 self.log.append("ENDG WIN")
-                return True
+                return 
             else:
-                self.bitMap[newCoord.x][newCoord.y] = 0
-        return False
-
+                self.bitMap[self.playerCoord.x][self.playerCoord.y] = 0
     
-    def agentNextMove(self): 
-        optimalDirection = self.directionToGo()
-        candidatePlayerCoord = Coordination(self.playerCoord.x, self.playerCoord.y)
-        candidatePlayerCoord.x = self.boundX(candidatePlayerCoord.x + optimalDirection.x * 2)
-        candidatePlayerCoord.y = self.boundY(candidatePlayerCoord.y + optimalDirection.y * 2)
+
+    def pirateNextMove(self):
+        savedPirateCoord = Coordination(self.pirateCoord.x, self.pirateCoord.y)
+        if (len(self.piratePath)):
+            self.pirateCoord = self.piratePath.pop()
+        self.log.append("PMOV {}".format(self.pirateCoord))
+        self.bitMap[self.pirateCoord.x][self.pirateCoord.y] = 0
+        if (abs(self.pirateCoord.x - savedPirateCoord.x) + abs(self.pirateCoord.y - savedPirateCoord.y)) == 2:
+            self.bitMap[(self.pirateCoord.x + savedPirateCoord.x) //2][(self.pirateCoord.y + savedPirateCoord.y) // 2] = 0
+        if (self.pirateCoord == self.T):
+            self.log.append("ENDG LOSE")
+            return True
+        return False
+    
+    def processAgentNextMove(self): 
+        optimalDirection = self.directionsDescSortedByPotential()
+        nextDirection = Coordination(0, 0)
+        for direction in optimalDirection:
+            candidatePlayerCoord = Coordination(self.playerCoord.x + direction.x, self.playerCoord.y + direction.y)
+            if (candidatePlayerCoord.x < 0 or candidatePlayerCoord.x >= self.H or candidatePlayerCoord.y < 0 or candidatePlayerCoord.y >= self.W):
+                continue
+            if (self.obstacle[candidatePlayerCoord.x][candidatePlayerCoord.y] == False):
+                nextDirection = direction
+                break
+
+        if (nextDirection == Coordination(0, 0)):
+            return self.largeScan()
+        
+        greatestStepPossible = 1
+        for index in range(2, 5):
+            test_coord = Coordination(self.playerCoord.x + nextDirection.x * index, self.playerCoord.y + nextDirection.y * index)
+            if (test_coord.x < 0 or test_coord.x >= self.H or test_coord.y < 0 or test_coord.y >= self.W):
+                break
+            if (self.obstacle[test_coord.x][test_coord.y]):
+                break
+            greatestStepPossible = index
+        
+        if (greatestStepPossible <= 2):
+            return self.stepAndSmallScan(greatestStepPossible, nextDirection)
+        
         deltaX = [0, 0, 0, 1, -1, 1, -1, 1, -1]
         deltaY = [0, 1, -1, 0, 0, 1, -1, -1, 1]
         for index in range(len(deltaX)):
             x = self.boundX(self.playerCoord.x + deltaX[index])
             y = self.boundX(self.playerCoord.y + deltaY[index])
             if (self.bitMap[x][y] == 1):
-                return self.smallScan()
-        return self.noScan()
+                return self.stepAndSmallScan(2, nextDirection)
+        return self.stepAndNoScan(greatestStepPossible, nextDirection)
+
+    def agentNextMove(self):
+        if (self.turn == 0):
+            self.hints.append(self.hintFactory.firstHint())
+            self.log.append(self.hints[-1]["log"]) # HINT
+            self.largeScan()
+            if (self.endCondition()):
+                return True
+            self.processAgentNextMove()
+        else:
+            self.hints.append(self.hintFactory.createRandomHint())
+            self.log.append(self.hints[-1]["log"])
+            self.log.append("VRFY {}".format(len(self.hints)))
+            self.verifyBitmap(self.hints[-1]["bitmap"])
+            self.processAgentNextMove()
+        return self.endCondition()
 
     def largeScan(self):
         self.log.append("ALSN") 
@@ -451,28 +537,14 @@ class Game:
             self.log.append("TURN {}".format(self.turn + 1)) # TURN SEQUENCE NUMBER
             if (self.turn == self.r):
                 self.log.append("RVEL {}".format(self.pirateCoord)) # PIRATE REVEALS COORD
+                self.bitMap[self.pirateCoord.x][self.pirateCoord.y] = 0
             if (self.turn == self.R):
                 self.log.append("FREE") # PIRATE IS FREE
             if (self.turn >= self.R):
-                if (self.pirateCoord.x != self.T.x):
-                    self.pirateCoord.x += self.boundMove(self.T.x - self.pirateCoord.x, 2)
-                elif (self.pirateCoord.y != self.T.y):
-                    self.pirateCoord.x += self.boundMove(self.T.y - self.pirateCoord.y, 2)
-                self.log.append("PMOV {}".format(self.pirateCoord))
-            if (self.turn == 0):
-                self.hints.append(self.hintFactory.firstHint())
-                self.log.append(self.hints[-1]["log"]) # HINT
-                if (self.largeScan()):
+                if (self.pirateNextMove()):
                     break
-                if (self.agentNextMove()):
-                    break
-            else:
-                self.hints.append(self.hintFactory.createRandomHint())
-                self.log.append(self.hints[-1]["log"])
-                self.log.append("VRFY {}".format(len(self.hints)))
-                self.verifyBitmap(self.hints[-1]["bitmap"])
-                if (self.agentNextMove()):
-                    break
+            if (self.agentNextMove()):
+                break
             self.turn += 1
                     
 
