@@ -90,7 +90,7 @@ class HintFactory:
             "log": log
         }
 
-    def bigRecWithoutTreasure(self):
+    def bigRecWithTreasure(self):
         bitmap = [[0]*self.W for _ in range(self.H)]
         x1, y1 = random.randint(0, self.W // 2), random.randint(0, self.H // 2)
         minSize = max(self.W, self.H) // 2
@@ -104,7 +104,7 @@ class HintFactory:
             "log": log
         }
 
-    def smallRecWithTreasure(self):
+    def smallRecWithoutTreasure(self):
         bitmap = [[1]*self.W for _ in range(self.H)]
         x1, y1 = random.randint(0, self.W-1), random.randint(0, self.H-1)
         maxSize = max(self.W, self.H) // 3
@@ -255,9 +255,9 @@ class HintFactory:
         if (type == 4):
             return self.regionsWithoutTreasure()
         if (type == 5):
-            return self.bigRecWithoutTreasure()
+            return self.bigRecWithTreasure()
         if (type == 6):
-            return self.smallRecWithTreasure()
+            return self.smallRecWithoutTreasure()
         if (type == 7):
             return self.agentIsNearestToTreasure()
         if (type == 8):
@@ -425,6 +425,10 @@ class Game:
 
     def verifyBitmap(self, hintBitmap):
         if hintBitmap[self.T.x][self.T.y] == 0:
+            for row in range(self.H):
+                for col in range(self.W):
+                    if (hintBitmap[row][col] == 1):
+                        self.bitMap[row][col] = 0
             self.log.append("SYST 0")
             return False
         for row in range(self.H):
@@ -459,6 +463,8 @@ class Game:
                 self.hints.append(self.hintFactory.firstHint())
                 self.log.append(self.hints[-1]["log"]) # HINT
                 if (self.largeScan()):
+                    break
+                if (self.agentNextMove()):
                     break
             else:
                 self.hints.append(self.hintFactory.createRandomHint())
