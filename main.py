@@ -12,9 +12,9 @@ class HintFactory:
         self.gameMap = gameMap
 
     def firstHint(self):
-        num = random.randint(1, 12)
+        num = random.randint(1, min(12, self.H*self.W - 1))
         bitmap = [[1]*self.W for _ in range(self.H)]
-        log = "H 1 {} ".format(num)
+        log = "HINT 1 {} ".format(num)
         uniqueNode = set()
         while len(uniqueNode) < num:
             x = random.randint(0, self.W-1)
@@ -23,6 +23,7 @@ class HintFactory:
                 continue
             bitmap[x][y] = 0
             uniqueNode.add((x, y))
+            log += "{} {} ".format(x, y)
         return {
             "bitmap": bitmap,
             "log": log
@@ -79,7 +80,7 @@ class HintFactory:
         log = "HINT 4 {} ".format(num)
         regions = []
         for _ in range(num):
-            regions.append(random.randint(self.R))
+            regions.append(random.randint(0, self.R-1))
         for row in range(self.H):
             for col in range(self.W):
                 if (self.gameMap[row][col] in regions):
@@ -128,12 +129,12 @@ class HintFactory:
         isRow = random.randint(0, 1)
         log = "HINT 8 "
         if isRow:
-            row = random.randint(self.H)
+            row = random.randint(0, self.H-1)
             for col in range(self.W):
                 bitmap[row][col] = 1
             log += "{} {}".format(isRow, row)
         else:
-            col = random.randint(self.W)
+            col = random.randint(0, self.W-1)
             for row in range(self.H):
                 bitmap[row][col] = 1   
             log += "{} {}".format(isRow, col)  
@@ -147,12 +148,12 @@ class HintFactory:
         isRow = random.randint(0, 1)
         log = "HINT 9 "
         if isRow:
-            row = random.randint(self.H)
+            row = random.randint(0, self.H-1)
             for col in range(self.W):
                 bitmap[row][col] = 0
             log += "{} {}".format(isRow, row)
         else:
-            col = random.randint(self.W)
+            col = random.randint(0, self.W-1)
             for row in range(self.H):
                 bitmap[row][col] = 1   
             log += "{} {}".format(isRow, col)  
@@ -441,6 +442,7 @@ class Game:
         return rawStep
 
     def simulate(self):
+        self.log.append("ASPW {}".format(self.playerCoord))
         while (not self.endCondition()):
             self.log.append("TURN {}".format(self.turn + 1)) # TURN SEQUENCE NUMBER
             if (self.turn == self.r):
