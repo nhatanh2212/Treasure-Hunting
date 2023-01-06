@@ -8,20 +8,22 @@ Round after round, they question him about the location of his treasure and expl
 
 ## 2. Installing
 <hr style="solid gray">
-### 1. python 3.9
-   - install:  sudo apt update
-               sudo apt install python3.9
+
+### a. python 3.9
+   - install:
+      - $sudo apt update
+      - $sudo apt install python3.9
    - The tutor for setting up python can be found here: https://www.python.org/downloads/release/python-390/ 
    
-### 2. venv for Visual studio
-   - macOS/Linux: You may need to run sudo apt-get install python3-venv first
-      $ python3 -m venv .venv
-   - Windown: You can also use py -3 -m venv .venv
-      $ python -m venv .venv
+### b. venv for Visual studio
+   - macOS/Linux: you may need to run sudo apt-get install python3-venv first
+      - $ python3 -m venv .venv
+   - Windown: you can also use py -3 -m venv .venv
+      - $ python -m venv .venv
    - The tutor for setting up venv can be found here: https://code.visualstudio.com/docs/python/environments 
     
-### 3. pypgame
-      $ pip install pygame
+### c. pypgame
+   - $pip install pygame
    - The tutor for setting up pygame can be found here: https://github.com/pygame/pygame
 
 
