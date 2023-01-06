@@ -571,6 +571,6 @@ if __name__ == '__main__':
     if (len(sys.argv) < 3):
         print('usage:\tmain.py <input_file> <log_file> <block_size>')
         sys.exit(0)
-        if (len(sys.argv) > 3):
+    if (len(sys.argv) > 3):
             const.SIZE = sys.argv[3] 
     main(sys.argv[1],sys.argv[2])

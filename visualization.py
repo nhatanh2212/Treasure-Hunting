@@ -222,6 +222,12 @@ class Visualizer:
                     color = const.ORANGE
                 elif gameMap[row][col] == 6:
                     color = const.PINK
+                elif gameMap[row][col] == 7:
+                    color = const.DARK_GREEN
+                elif gameMap[row][col] == 8:
+                    color = const.MARGENTA
+                elif gameMap[row][col] == 9:
+                    color = const.LIGHT_RED
                 else:
                     color = const.TUR
                 pygame.draw.rect(self.screen, color, (col * const.SIZE, row * const.SIZE, const.SIZE, const.SIZE), 0, 1)
