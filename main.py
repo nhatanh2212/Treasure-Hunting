@@ -87,6 +87,7 @@ class HintFactory:
         regions = []
         for _ in range(num):
             regions.append(random.randint(0, self.R-1))
+            log += "{} ".format(regions[-1])
         for row in range(self.H):
             for col in range(self.W):
                 if (self.gameMap[row][col] in regions):
@@ -392,13 +393,21 @@ class Game:
     def directionsDescSortedByPotential(self):
         total = [(0, SOUTH), (0, NORTH), (0, EAST), (0, WEST)]
         #Bottom top right left
+        playerPrimaryDiagonal =  self.playerCoord.y - self.playerCoord.x
+        playerSecondaryDiagonal = self.playerCoord.x + self.playerCoord.y
         for row in range(0, self.H):
             for col in range(0, self.W):
                 if (self.bitMap[row][col]):
-                    total[0] = (total[0][0] + int(row > self.playerCoord.x), total[0][1])
-                    total[1] = (total[1][0] + int(row < self.pirateCoord.x), total[1][1])
-                    total[2] = (total[2][0] + int(col > self.playerCoord.y), total[2][1])
-                    total[3] = (total[3][0] + int(col < self.playerCoord.y), total[3][1])
+                    primaryDiagonal = col - row
+                    secondaryDiagonal = row + col
+                    isNorth = row <= self.playerCoord.x and primaryDiagonal >= playerPrimaryDiagonal and secondaryDiagonal <= playerSecondaryDiagonal
+                    isSouth = row >= self.playerCoord.x and primaryDiagonal <= playerPrimaryDiagonal and secondaryDiagonal >= playerSecondaryDiagonal
+                    isEast = col >= self.playerCoord.y and primaryDiagonal >= playerPrimaryDiagonal and secondaryDiagonal >= playerSecondaryDiagonal
+                    isWest = col <= self.playerCoord.y and primaryDiagonal <= playerPrimaryDiagonal and secondaryDiagonal <= playerSecondaryDiagonal
+                    total[0] = (total[0][0] + int(isSouth), total[0][1])
+                    total[1] = (total[1][0] + int(isNorth), total[1][1])
+                    total[2] = (total[2][0] + int(isEast), total[2][1])
+                    total[3] = (total[3][0] + int(isWest), total[3][1])
         total = sorted(total, key=lambda x:x[0])
         total.reverse()
         return [total[0][1], total[1][1], total[2][1], total[3][1]]
@@ -559,7 +568,9 @@ def main(input_path, output_path):
     visualizer.simulate(output_path)
 
 if __name__ == '__main__':
-    if (len(sys.argv) != 3):
-        print('usage:\tmain.py <input_file> <output_file>')
+    if (len(sys.argv) < 3):
+        print('usage:\tmain.py <input_file> <log_file> <block_size>')
         sys.exit(0)
+        if (len(sys.argv) > 3):
+            const.SIZE = sys.argv[3] 
     main(sys.argv[1],sys.argv[2])

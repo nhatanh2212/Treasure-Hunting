@@ -25,7 +25,7 @@ class HintLogDecoder:
 
     def regionsWithTreasure(self, args):
         bitmap = [[0]*self.W for _ in range(self.H)]
-        regions = list(map(int, args[1:]))
+        regions = list(map(int, args[2:]))
         for row in range(self.H):
             for col in range(self.W):
                 if (self.gameMap[row][col] in regions):
@@ -34,7 +34,7 @@ class HintLogDecoder:
 
     def regionsWithoutTreasure(self, args):
         bitmap = [[1]*self.W for _ in range(self.H)]
-        regions = list(map(int, args[1:]))
+        regions = list(map(int, args[2:]))
         for row in range(self.H):
             for col in range(self.W):
                 if (self.gameMap[row][col] in regions):
@@ -234,7 +234,7 @@ class Visualizer:
                     pygame.draw.rect(self.screen, (80, 80, 80), (col * const.SIZE, row * const.SIZE, const.SIZE, const.SIZE), 0, 1)
 
     def show_piece(self, filename, coord):
-        img = pygame.image.load(os.path.join(f'images/{filename}'))
+        img = pygame.transform.scale(pygame.image.load(os.path.join(f'images/{filename}')), (const.SIZE, const.SIZE))
         self.screen.blit(img, (coord.y*const.SIZE, coord.x*const.SIZE))
 
     def show_text(self, text):
@@ -330,12 +330,14 @@ class Visualizer:
             while True:
                 self.show_map()
                 self.show_bitmap()
+                self.show_piece("treasure.png", self.T)
                 self.show_piece("player.png", self.playerCoord)
                 for prisonCoord in self.prisonCoords:
                     self.show_piece("prison.png", prisonCoord)
                 if (self.isPirateRevealed):
                     self.show_piece("pirate.png", self.pirateCoord)
-                self.show_piece("treasure.png", self.T)
+                for mountainCoord in self.mountainCoords:
+                    self.show_piece("mountain.png", mountainCoord)
                 self.show_text("TURN {}".format(self.turn))
                 pygame.display.update()
                 
@@ -412,7 +414,9 @@ def main(input_path, log_path):
 
 
 if __name__ == '__main__':
-    if (len(sys.argv) != 3):
-        print('usage:\tvisualization.py <input_file> <log_file>')
+    if (len(sys.argv) < 3):
+        print('usage:\tvisualization.py <input_file> <log_file> <block_size>')
         sys.exit(0)
+    if (len(sys.argv) > 3):
+        const.SIZE = sys.argv[3] 
     main(sys.argv[1],sys.argv[2])
