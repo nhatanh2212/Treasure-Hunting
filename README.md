@@ -1,4 +1,4 @@
-# Treasure-Hunting
+# Treasure Island
 
 ## 1. The boardgame
 “Long John Silver's crew has committed mutiny and has him cornered and tied up!
