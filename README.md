@@ -18,6 +18,15 @@ Round after round, they question him about the location of his treasure and expl
 ### b. pypgame
    - $pip install pygame
    - The tutor for setting up pygame can be found here: https://github.com/pygame/pygame
+   
+## 3. Running
+   User can specify the block size when running the game
+   - Main function:
+      - python main.py <input_file> <output_file> <block_size>
+      Example: python main.py "MAP_1.txt" "OUTPUT_1.txt" 50
+   - Visualization:
+      - python visualization.py <input_file> <output_file> <block_size>
+      Example: python visualization.py "MAP_1.txt" "OUTPUT_1.txt" 50
 
 
 
